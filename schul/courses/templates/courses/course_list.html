@@ -1,0 +1,195 @@
+```html
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LMS — Система навчання</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f3f6fb;
+            color: #263248;
+        }
+
+        header {
+            background: #243b64;
+            color: white;
+            padding: 20px 8%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 26px;
+        }
+
+        nav {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        nav a, nav button {
+            text-decoration: none;
+            border: none;
+            border-radius: 8px;
+            padding: 11px 17px;
+            font-size: 15px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .register {
+            background: #ffffff;
+            color: #243b64;
+        }
+
+        .login {
+            background: #3977e8;
+            color: white;
+        }
+
+        .logout {
+            background: #e7edf7;
+            color: #243b64;
+        }
+
+        .welcome {
+            color: white;
+            font-size: 14px;
+        }
+
+        .hero {
+            text-align: center;
+            padding: 55px 20px 35px;
+        }
+
+        .hero h2 {
+            font-size: 34px;
+            margin-bottom: 12px;
+        }
+
+        .hero p {
+            color: #68758a;
+            font-size: 17px;
+        }
+
+        main {
+            max-width: 1000px;
+            margin: auto;
+            padding: 20px;
+        }
+
+        .courses-title {
+            margin-bottom: 22px;
+        }
+
+        .course {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 18px;
+            box-shadow: 0 4px 15px #243b6410;
+        }
+
+        .course h3 {
+            margin-top: 0;
+            color: #243b64;
+        }
+
+        .empty {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            text-align: center;
+            color: #68758a;
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px;
+            color: #8993a4;
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>My LMS</h1>
+
+    
+    <nav>
+        {% if user.is_authenticated %}
+            <span class="welcome">
+                Привіт, {{ user.username }}!
+            </span>
+
+            <a class="login" href="{% url 'my_courses' %}">
+                Мої курси
+            </a>
+
+            {% if user.is_staff %}
+                <a class="register" href="{% url 'teacher_dashboard' %}">
+                    Панель викладача
+                </a>
+            {% endif %}
+
+            <form method="post" action="{% url 'logout' %}">
+                {% csrf_token %}
+                <button class="logout" type="submit">Вийти</button>
+            </form>
+        {% else %}
+            <a class="register" href="{% url 'register' %}">
+                Зареєструватися
+            </a>
+
+            <a class="login" href="{% url 'login' %}">
+                Увійти
+            </a>
+        {% endif %}
+    </nav>
+</header>
+
+<section class="hero">
+    <h2>Навчайся у власному темпі</h2>
+    <p>Обирай курси, отримуй нові знання та розвивай свої навички.</p>
+</section>
+
+<main>
+    <h2 class="courses-title">Наші курси</h2>
+
+    {% if courses %}
+        {% for course in courses %}
+            <article class="course">
+                <h3>{{ course.title }}</h3>
+                <p>{{ course.description|linebreaksbr }}</p>
+            </article>
+        {% endfor %}
+    {% else %}
+        <div class="empty">
+            <h3>Поки що курсів немає</h3>
+            <p>Нові курси з'являться тут пізніше.</p>
+        </div>
+    {% endif %}
+</main>
+
+<footer>
+    LMS — система управління навчанням
+</footer>
+
+</body>
+</html>
+```

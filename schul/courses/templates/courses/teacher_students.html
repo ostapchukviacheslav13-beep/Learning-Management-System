@@ -1,0 +1,34 @@
+
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>Учні — LMS</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f3f6fb; color: #263248; margin: 0; }
+        main { max-width: 900px; margin: 40px auto; padding: 25px; background: white; border-radius: 14px; }
+        li { padding: 15px 0; border-bottom: 1px solid #e8edf5; }
+        a { color: #315fca; text-decoration: none; }
+        .muted { color: #738096; }
+    </style>
+</head>
+<body>
+<main>
+    <h1>Зареєстровані учні</h1>
+    <p><a href="{% url 'teacher_dashboard' %}">← Назад до панелі</a></p>
+
+    <ul>
+        {% for student in students %}
+            <li>
+                <strong>{{ student.username }}</strong>
+                {% if student.email %}
+                    <span class="muted"> — {{ student.email }}</span>
+                {% endif %}
+            </li>
+        {% empty %}
+            <li>Поки немає зареєстрованих учнів.</li>
+        {% endfor %}
+    </ul>
+</main>
+</body>
+</html>

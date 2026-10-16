@@ -1,0 +1,26 @@
+
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>Мої курси — LMS</title>
+</head>
+<body>
+    <h1>Мої курси</h1>
+
+    <p><a href="{% url 'course_list' %}">На головну</a></p>
+
+    {% for course in courses %}
+        <article>
+            <h2>{{ course.title }}</h2>
+            <p>{{ course.description|truncatewords:25 }}</p>
+            <a href="{% url 'course_detail' course.id %}">
+                Переглянути курс
+            </a>
+        </article>
+        <hr>
+    {% empty %}
+        <p>У вас поки немає доступних курсів.</p>
+    {% endfor %}
+</body>
+</html>

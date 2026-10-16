@@ -1,0 +1,145 @@
+
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Панель викладача — LMS</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f3f6fb;
+            color: #263248;
+        }
+        header {
+            background: #20345b;
+            color: white;
+            padding: 22px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        header h1 { margin: 0; font-size: 24px; }
+        a { text-decoration: none; }
+        .top-link {
+            color: white;
+            background: #344b75;
+            padding: 11px 15px;
+            border-radius: 8px;
+        }
+        main { max-width: 1150px; margin: 35px auto; padding: 0 20px; }
+        .subtitle { color: #738096; }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 18px;
+            margin: 25px 0;
+        }
+        .stat, .panel {
+            background: white;
+            padding: 24px;
+            border-radius: 14px;
+            box-shadow: 0 4px 18px #20345b0b;
+        }
+        .stat p { color: #738096; margin-bottom: 8px; }
+        .number { font-size: 32px; font-weight: bold; color: #315fca; }
+        .actions { display: flex; gap: 10px; flex-wrap: wrap; }
+        .btn {
+            display: inline-block;
+            padding: 11px 15px;
+            border-radius: 8px;
+            color: white;
+            background: #315fca;
+            border: 0;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .btn-light { background: #e9effb; color: #294878; }
+        .btn-delete { background: #b93838; }
+        .course {
+            border-top: 1px solid #e8edf5;
+            padding: 20px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .course h3 { margin: 0 0 8px; }
+        .course p { color: #738096; margin: 0; }
+        .messages { background: #e2f6e9; padding: 12px; border-radius: 8px; }
+        .empty { color: #738096; padding: 20px 0; }
+        @media (max-width: 600px) {
+            .course { align-items: flex-start; }
+        }
+    </style>
+</head>
+<body>
+<header>
+    <h1>My LMS / Викладач</h1>
+    <a class="top-link" href="{% url 'course_list' %}">На сайт</a>
+</header>
+
+<main>
+    <h2>Панель керування</h2>
+    <p class="subtitle">Керуй навчальними курсами та доступом учнів.</p>
+
+    {% for message in messages %}
+        <p class="messages">{{ message }}</p>
+    {% endfor %}
+
+    <section class="stats">
+        <div class="stat">
+            <p>Усього курсів</p>
+            <div class="number">{{ courses_count }}</div>
+        </div>
+        <div class="stat">
+            <p>Зареєстрованих учнів</p>
+            <div class="number">{{ students_count }}</div>
+        </div>
+    </section>
+
+    <section class="panel">
+        <div class="actions">
+            <a class="btn" href="{% url 'teacher_course_create' %}">
+                + Створити курс
+            </a>
+            <a class="btn btn-light" href="{% url 'teacher_students' %}">
+                Список учнів
+            </a>
+        </div>
+
+        <h2>Курси</h2>
+
+        {% for course in courses %}
+            <div class="course">
+                <div>
+                    <h3>{{ course.title }}</h3>
+                    <p>{{ course.students.count }} учнів мають доступ</p>
+                </div>
+                <div class="actions">
+                    <a class="btn btn-light"
+                       href="{% url 'teacher_course_edit' course.id %}">
+                        Редагувати
+                    </a>
+                    <a class="btn btn-light"
+                       href="{% url 'course_detail' course.id %}">
+                        Переглянути
+                    </a>
+                    <a class="btn btn-delete"
+                       href="{% url 'teacher_course_delete' course.id %}">
+                        Видалити
+                    </a>
+                </div>
+            </div>
+        {% empty %}
+            <p class="empty">Курсів поки немає. Створи перший курс!</p>
+        {% endfor %}
+    </section>
+</main>
+</body>
+</html>

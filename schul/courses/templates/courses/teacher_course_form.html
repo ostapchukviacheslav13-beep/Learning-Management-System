@@ -1,0 +1,42 @@
+
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ page_title }} — LMS</title>
+    <style>
+        body { margin: 0; font-family: Arial, sans-serif; background: #f3f6fb; color: #263248; }
+        main { max-width: 700px; margin: 40px auto; padding: 30px; background: white; border-radius: 14px; }
+        label { display: block; margin: 18px 0 8px; font-weight: bold; }
+        input, textarea, select { width: 100%; padding: 12px; border: 1px solid #ccd5e4; border-radius: 8px; font: inherit; }
+        select[multiple] { min-height: 220px; }
+        button, .back { display: inline-block; margin-top: 20px; padding: 12px 18px; border: 0; border-radius: 8px; background: #315fca; color: white; cursor: pointer; text-decoration: none; }
+        .hint { color: #738096; font-size: 14px; }
+        .errorlist { color: #b93838; }
+    </style>
+</head>
+<body>
+<main>
+    <h1>{{ page_title }}</h1>
+    <p class="hint">Заповни дані курсу та вибери учнів, яким буде надано доступ.</p>
+
+    <form method="post">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+
+        {% for field in form %}
+            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+            {{ field.errors }}
+            {% if field.name == "students" %}
+                <p class="hint">Для вибору кількох учнів утримуй Ctrl під час натискання. На Mac — Command.</p>
+            {% endif %}
+        {% endfor %}
+
+        <button type="submit">Зберегти курс</button>
+        <a class="back" href="{% url 'teacher_dashboard' %}">Скасувати</a>
+    </form>
+</main>
+</body>
+</html>

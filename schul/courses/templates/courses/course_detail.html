@@ -1,0 +1,17 @@
+
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ course.title }} — LMS</title>
+</head>
+<body>
+    <h1>{{ course.title }}</h1>
+
+    <div>
+        {{ course.description|linebreaks }}
+    </div>
+
+    <p><a href="{% url 'my_courses' %}">Повернутися до моїх курсів</a></p>
+</body>
+</html>
