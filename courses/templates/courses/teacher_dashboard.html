@@ -1,0 +1,75 @@
+
+{% extends "courses/base.html" %}
+{% block title %}Панель викладача{% endblock %}
+
+{% block content %}
+<h1>{% if is_super_admin %}Усі курси{% else %}Мої курси{% endif %}</h1>
+
+<div class="grid">
+    <div class="card"><h3>Курсів</h3><h2>{{ courses_count }}</h2></div>
+    <div class="card"><h3>Заявок</h3><h2>{{ pending_count }}</h2></div>
+    <div class="card"><h3>Учнів на сайті</h3><h2>{{ students_count }}</h2></div>
+</div>
+
+<div class="card">
+    <div class="actions">
+        <a class="btn green" href="{% url 'teacher_course_create' %}">+ Створити курс</a>
+        <a class="btn gray" href="{% url 'teacher_students' %}">Список учнів</a>
+        {% if is_super_admin %}
+            <a class="btn" href="{% url 'admin_dashboard' %}">Панель адміна</a>
+        {% endif %}
+    </div>
+</div>
+
+<div class="card">
+    <h2>Заявки на курси</h2>
+
+    {% for application in pending_requests %}
+        <div class="lesson">
+            <h3>{{ application.student.username }}</h3>
+            <p>Курс: {{ application.course.title }}</p>
+            <p>Ціна за 30 днів: {{ application.course.monthly_price }} грн</p>
+            <p>Вільних місць: {{ application.course.free_places }}</p>
+
+            <p class="muted">
+                Перевір оплату поза сайтом, перш ніж підтверджувати її тут.
+            </p>
+
+            <div class="actions">
+                <form method="post" action="{% url 'teacher_request_approve' application.id %}"
+                      onsubmit="return confirm('Ти перевірив отримання оплати?');">
+                    {% csrf_token %}
+                    <button class="btn green" type="submit">Підтвердити оплату</button>
+                </form>
+
+                <form method="post" action="{% url 'teacher_request_reject' application.id %}">
+                    {% csrf_token %}
+                    <button class="btn red" type="submit">Відхилити заявку</button>
+                </form>
+            </div>
+        </div>
+    {% empty %}
+        <p>Нових заявок немає.</p>
+    {% endfor %}
+</div>
+
+<h2>Курси</h2>
+{% for course in courses %}
+    <div class="card">
+        <h2>{{ course.title }}</h2>
+        <p>{{ course.description|truncatewords:30 }}</p>
+        <p>Викладач: {{ course.teacher.username|default:"Не призначений" }}</p>
+        <p>Ціна: {{ course.monthly_price }} грн / 30 днів</p>
+        <p>Активних учнів: {{ course.enrolled_count }} / {{ course.max_students }}</p>
+
+        <div class="actions">
+            <a class="btn" href="{% url 'teacher_course_edit' course.id %}">Редагувати</a>
+            <a class="btn green" href="{% url 'teacher_lesson_create' course.id %}">Додати урок</a>
+            <a class="btn gray" href="{% url 'course_detail' course.id %}">Уроки</a>
+            <a class="btn red" href="{% url 'teacher_course_delete' course.id %}">Видалити</a>
+        </div>
+    </div>
+{% empty %}
+    <div class="card">Курсів поки немає.</div>
+{% endfor %}
+{% endblock %}

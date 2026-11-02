@@ -1,0 +1,116 @@
+
+{% extends "courses/base.html" %}
+{% block title %}Супер-адміністратор{% endblock %}
+
+{% block content %}
+<h1>Панель адміністратора</h1>
+
+<div class="grid">
+    <div class="card">
+        <h3>Учнів</h3>
+        <h2>{{ students_count }}</h2>
+    </div>
+    <div class="card">
+        <h3>Курсів</h3>
+        <h2>{{ courses.count }}</h2>
+    </div>
+    <div class="card">
+        <h3>Викладачів</h3>
+        <h2>{{ teachers.count }}</h2>
+    </div>
+</div>
+
+<div class="card">
+    <h2>Викладачі</h2>
+
+    {% for profile in teachers %}
+        <div class="lesson">
+            <h3>{{ profile.user.username }}</h3>
+            <p>Email: {{ profile.user.email }}</p>
+            <p>Телефон: {{ profile.phone_number|default:"Не вказаний" }}</p>
+
+            {% if profile.teacher_approved %}
+                <p>Статус: схвалений</p>
+                <form method="post" action="{% url 'admin_teacher_block' profile.id %}">
+                    {% csrf_token %}
+                    <button class="btn red" type="submit">Заблокувати</button>
+                </form>
+            {% else %}
+                <p>Статус: очікує схвалення</p>
+                <form method="post" action="{% url 'admin_teacher_approve' profile.id %}">
+                    {% csrf_token %}
+                    <button class="btn green" type="submit">Схвалити</button>
+                </form>
+            {% endif %}
+        </div>
+    {% empty %}
+        <p>Викладачів ще немає.</p>
+    {% endfor %}
+</div>
+
+<div class="card">
+    <h2>Усі курси</h2>
+    <a class="btn green" href="{% url 'teacher_course_create' %}">Створити курс</a>
+
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Курс</th>
+                    <th>Викладач</th>
+                    <th>Учні</th>
+                    <th>Дії</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for course in courses %}
+                    <tr>
+                        <td>{{ course.title }}</td>
+                        <td>{{ course.teacher.username|default:"Не призначений" }}</td>
+                        <td>{{ course.enrolled_count }} / {{ course.max_students }}</td>
+                        <td>
+                            <a href="{% url 'teacher_course_edit' course.id %}">Редагувати</a>
+                            |
+                            <a href="{% url 'course_detail' course.id %}">Уроки</a>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr><td colspan="4">Курсів немає.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="card">
+    <h2>Історія підтверджених оплат</h2>
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Учень</th>
+                    <th>Курс</th>
+                    <th>Сума</th>
+                    <th>Підтвердив</th>
+                    <th>Дата</th>
+                    <th>Доступ до</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for record in payment_records %}
+                    <tr>
+                        <td>{{ record.student.username }}</td>
+                        <td>{{ record.course.title }}</td>
+                        <td>{{ record.amount }} грн</td>
+                        <td>{{ record.confirmed_by.username|default:"—" }}</td>
+                        <td>{{ record.confirmed_at|date:"d.m.Y H:i" }}</td>
+                        <td>{{ record.access_until|date:"d.m.Y H:i" }}</td>
+                    </tr>
+                {% empty %}
+                    <tr><td colspan="6">Підтверджених оплат ще немає.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

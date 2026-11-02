@@ -1,0 +1,127 @@
+
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Моя LMS{% endblock %}</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f3f6fc;
+            color: #1e293b;
+            line-height: 1.6;
+        }
+        nav {
+            background: #192c50;
+            color: white;
+            padding: 15px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        nav a { color: white; text-decoration: none; }
+        .nav-links {
+            display: flex;
+            gap: 14px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .container { max-width: 1100px; margin: 30px auto; padding: 0 18px; }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 18px;
+        }
+        .card {
+            background: white;
+            padding: 22px;
+            border-radius: 14px;
+            box-shadow: 0 3px 15px #1e293b10;
+            margin-bottom: 18px;
+        }
+        .btn {
+            display: inline-block;
+            padding: 10px 15px;
+            border: 0;
+            border-radius: 8px;
+            background: #2563eb;
+            color: white;
+            text-decoration: none;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .green { background: #16834b; }
+        .red { background: #dc3545; }
+        .gray { background: #64748b; }
+        .btn:disabled { background: #94a3b8; cursor: not-allowed; }
+        .price { color: #16834b; font-size: 21px; font-weight: bold; }
+        .muted { color: #64748b; }
+        .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+        .alert { padding: 13px; background: #dbeafe; border-radius: 8px; margin-bottom: 12px; }
+        input, textarea, select {
+            max-width: 100%;
+            padding: 10px;
+            border: 1px solid #cbd5e1;
+            border-radius: 7px;
+        }
+        input:not([type=checkbox]):not([type=radio]), textarea, select {
+            width: 100%;
+            margin: 7px 0 14px;
+        }
+        label { font-weight: bold; }
+        .errorlist { color: #dc3545; }
+        .lesson { padding: 18px 0; border-bottom: 1px solid #e2e8f0; }
+        .inline { display: inline; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { text-align: left; padding: 10px; border-bottom: 1px solid #ddd; }
+        .table-wrap { overflow-x: auto; }
+    </style>
+</head>
+<body>
+<nav>
+    <a href="{% url 'course_list' %}"><strong>Курси</strong></a>
+
+    <div class="nav-links">
+        <a href="{% url 'course_list' %}">Головна</a>
+
+        {% if user.is_authenticated %}
+            {% if user.is_superuser %}
+                <a href="{% url 'admin_dashboard' %}">адмін панель</a>
+                <a href="{% url 'teacher_dashboard' %}">Усі курси</a>
+            {% elif user.is_staff %}
+                <a href="{% url 'teacher_dashboard' %}">Панель викладача</a>
+            {% elif user.student_profile.role == "teacher" %}
+                {% if user.student_profile.teacher_approved %}
+                    <a href="{% url 'teacher_dashboard' %}">Мої курси</a>
+                {% else %}
+                    <span>Очікує схвалення</span>
+                {% endif %}
+            {% else %}
+                <a href="{% url 'my_courses' %}">Мої курси</a>
+            {% endif %}
+
+            <span>{{ user.username }}</span>
+            <form method="post" action="{% url 'logout' %}" class="inline">
+                {% csrf_token %}
+                <button class="btn gray" type="submit">Вийти</button>
+            </form>
+        {% else %}
+            <a href="{% url 'login' %}">Увійти</a>
+            <a href="{% url 'register' %}">Реєстрація</a>
+        {% endif %}
+    </div>
+</nav>
+
+<main class="container">
+    {% for message in messages %}
+        <div class="alert">{{ message }}</div>
+    {% endfor %}
+    {% block content %}{% endblock %}
+</main>
+</body>
+</html>

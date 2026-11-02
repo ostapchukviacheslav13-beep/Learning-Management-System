@@ -1,0 +1,59 @@
+
+{% extends "courses/base.html" %}
+{% block title %}Каталог курсів{% endblock %}
+
+{% block content %}
+<h1>Каталог курсів</h1>
+
+<div class="grid">
+    {% for course in courses %}
+        <div class="card">
+            <h2>{{ course.title }}</h2>
+            <p>{{ course.description|truncatewords:35 }}</p>
+
+            <p class="muted">
+                Викладач:
+                {{ course.teacher.username|default:"Не призначений" }}
+            </p>
+
+            <p class="price">{{ course.monthly_price }} грн / 30 днів</p>
+            <p>
+                <strong>Вільних місць:</strong>
+                {{ course.free_places }} із {{ course.max_students }}
+            </p>
+
+            {% if user.is_authenticated %}
+                {% if course.can_manage %}
+                    <a class="btn" href="{% url 'teacher_course_edit' course.id %}">
+                        Редагувати курс
+                    </a>
+                    <a class="btn gray" href="{% url 'course_detail' course.id %}">
+                        Уроки
+                    </a>
+                {% elif user.is_superuser or user.is_staff %}
+                    <span class="muted">Керування через панель адміністратора</span>
+                {% elif user.student_profile.role == "teacher" %}
+                    <span class="muted">Курс іншого викладача</span>
+                {% elif course.has_access %}
+                    <a class="btn green" href="{% url 'course_detail' course.id %}">
+                        Відкрити курс
+                    </a>
+                {% elif course.request_status == "pending" %}
+                    <button class="btn" disabled>Заявка очікує</button>
+                {% elif course.is_full %}
+                    <button class="btn" disabled>Місць немає</button>
+                {% else %}
+                    <form method="post" action="{% url 'request_join_course' course.id %}">
+                        {% csrf_token %}
+                        <button class="btn" type="submit">Подати заявку</button>
+                    </form>
+                {% endif %}
+            {% else %}
+                <a class="btn" href="{% url 'login' %}">Увійти, щоб подати заявку</a>
+            {% endif %}
+        </div>
+    {% empty %}
+        <div class="card">Курсів поки немає.</div>
+    {% endfor %}
+</div>
+{% endblock %}

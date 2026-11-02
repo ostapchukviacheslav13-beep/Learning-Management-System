@@ -1,0 +1,35 @@
+
+{% extends "courses/base.html" %}
+{% block title %}Реєстрація{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width:600px;margin:auto">
+    <h1>Створення акаунта</h1>
+    <p class="muted">
+        Нові викладачі зможуть створювати курси після схвалення адміністратором.
+    </p>
+
+    <form method="post">
+        {% csrf_token %}
+
+        {% for field in form %}
+            <div>
+                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field }}
+
+                {% if field.help_text %}
+                    <div class="muted">{{ field.help_text|safe }}</div>
+                {% endif %}
+
+                {% for error in field.errors %}
+                    <p class="errorlist">{{ error }}</p>
+                {% endfor %}
+            </div>
+        {% endfor %}
+
+        <button class="btn green" type="submit">Зареєструватися</button>
+    </form>
+
+    <p>Уже є акаунт? <a href="{% url 'login' %}">Увійти</a></p>
+</div>
+{% endblock %}

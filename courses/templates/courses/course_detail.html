@@ -1,0 +1,77 @@
+
+{% extends "courses/base.html" %}
+{% block title %}{{ course.title }}{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1>{{ course.title }}</h1>
+    {{ course.description|linebreaks }}
+    <p>Викладач: {{ course.teacher.username|default:"Не призначений" }}</p>
+
+    {% if can_manage %}
+        <div class="actions">
+            <a class="btn green" href="{% url 'teacher_lesson_create' course.id %}">
+                + Додати урок
+            </a>
+            <a class="btn gray" href="{% url 'teacher_dashboard' %}">
+                Назад до панелі
+            </a>
+        </div>
+    {% endif %}
+</div>
+
+<h2>Уроки</h2>
+
+{% for lesson in lessons %}
+    <div class="card">
+        <h2>Урок {{ lesson.order }}: {{ lesson.title }}</h2>
+
+        {% if lesson.content %}
+            <h3>Матеріал уроку</h3>
+            {{ lesson.content|linebreaks }}
+        {% endif %}
+
+        {% if lesson.resource_url %}
+            <p>
+                <a href="{{ lesson.resource_url }}" target="_blank" rel="noopener noreferrer">
+                    Відкрити додаткове посилання
+                </a>
+            </p>
+        {% endif %}
+
+        {% if lesson.assignment %}
+            <h3>Домашнє завдання</h3>
+            {{ lesson.assignment|linebreaks }}
+        {% endif %}
+
+        {% if lesson.materials.all %}
+            <h3>Файли уроку</h3>
+            {% for material in lesson.materials.all %}
+                <p>
+                    <a href="{% url 'material_download' material.id %}">
+                        {{ material.title }} — завантажити
+                    </a>
+                </p>
+            {% endfor %}
+        {% endif %}
+
+        {% if can_manage %}
+            <div class="actions">
+                <a class="btn" href="{% url 'teacher_lesson_edit' lesson.id %}">
+                    Редагувати урок
+                </a>
+                <a class="btn green" href="{% url 'teacher_material_upload' lesson.id %}">
+                    Завантажити PDF
+                </a>
+                <form method="post" action="{% url 'teacher_lesson_delete' lesson.id %}"
+                      onsubmit="return confirm('Видалити урок?');">
+                    {% csrf_token %}
+                    <button class="btn red" type="submit">Видалити урок</button>
+                </form>
+            </div>
+        {% endif %}
+    </div>
+{% empty %}
+    <div class="card">Уроків поки немає.</div>
+{% endfor %}
+{% endblock %}

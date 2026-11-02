@@ -1,0 +1,29 @@
+
+{% extends "courses/base.html" %}
+{% block title %}Завантаження матеріалу{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width:650px;margin:auto">
+    <h1>Завантаження матеріалу</h1>
+    <p>Урок: {{ lesson.title }}</p>
+    <p class="muted">Формат PDF, максимальний розмір 10 МБ.</p>
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        {% for field in form %}
+            <div>
+                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field }}
+                {% for error in field.errors %}
+                    <p class="errorlist">{{ error }}</p>
+                {% endfor %}
+            </div>
+        {% endfor %}
+
+        <button class="btn green" type="submit">Завантажити</button>
+        <a class="btn gray"
+           href="{% url 'course_detail' lesson.course_id %}">Назад</a>
+    </form>
+</div>
+{% endblock %}

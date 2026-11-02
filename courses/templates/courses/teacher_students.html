@@ -1,0 +1,32 @@
+
+{% extends "courses/base.html" %}
+{% block title %}Учні{% endblock %}
+
+{% block content %}
+<h1>Учні</h1>
+
+<div class="card">
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Логін</th>
+                    <th>Email</th>
+                    <th>Телефон</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for student in students %}
+                    <tr>
+                        <td>{{ student.username }}</td>
+                        <td>{{ student.email|default:"—" }}</td>
+                        <td>{{ student.student_profile.phone_number|default:"—" }}</td>
+                    </tr>
+                {% empty %}
+                    <tr><td colspan="3">Учнів не знайдено.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

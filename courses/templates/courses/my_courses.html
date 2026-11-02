@@ -1,0 +1,37 @@
+
+{% extends "courses/base.html" %}
+{% block title %}Мої курси{% endblock %}
+
+{% block content %}
+<h1>Мої курси</h1>
+
+<div class="grid">
+    {% for course in courses %}
+        <div class="card">
+            <h2>{{ course.title }}</h2>
+            <p>{{ course.description }}</p>
+            <p>Викладач: {{ course.teacher.username|default:"Не призначений" }}</p>
+            <p class="price">{{ course.monthly_price }} грн / 30 днів</p>
+            <p>Вільних місць: {{ course.free_places }}</p>
+
+            {% for payment in course.payments.all %}
+                {% if payment.student_id == user.id %}
+                    <p>
+                        Доступ до:
+                        {{ payment.paid_until|date:"d.m.Y H:i" }}
+                    </p>
+                {% endif %}
+            {% endfor %}
+
+            <a class="btn green" href="{% url 'course_detail' course.id %}">
+                Відкрити уроки
+            </a>
+        </div>
+    {% empty %}
+        <div class="card">
+            <p>У тебе ще немає активних курсів.</p>
+            <a class="btn" href="{% url 'course_list' %}">Переглянути каталог</a>
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}

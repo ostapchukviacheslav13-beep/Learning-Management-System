@@ -1,0 +1,28 @@
+
+{% extends "courses/base.html" %}
+{% block title %}Вхід{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width:500px;margin:auto">
+    <h1>Вхід до LMS</h1>
+
+    <form method="post">
+        {% csrf_token %}
+
+        {% for field in form %}
+            <div>
+                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field }}
+                {% for error in field.errors %}
+                    <p class="errorlist">{{ error }}</p>
+                {% endfor %}
+            </div>
+        {% endfor %}
+
+        <button class="btn green" type="submit">Увійти</button>
+    </form>
+
+    <p><a href="{% url 'password_reset' %}">Забув пароль?</a></p>
+    <p>Немає акаунта? <a href="{% url 'register' %}">Реєстрація</a></p>
+</div>
+{% endblock %}
