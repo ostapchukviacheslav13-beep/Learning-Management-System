@@ -9,6 +9,7 @@ class StudentProfile(models.Model):
     ROLE_CHOICES = [
         ("student", "Учень"),
         ("teacher", "Викладач"),
+        ("admin", "Адміністрація"),
     ]
 
     user = models.OneToOneField(

@@ -76,12 +76,14 @@ def course_list(request):
     )
 
 
+
 def register_view(request):
     if request.user.is_authenticated:
         return redirect("course_list")
 
     if request.method == "POST":
         form = RegisterForm(request.POST)
+
         if form.is_valid():
             user = form.save()
             login(request, user)
@@ -92,9 +94,15 @@ def register_view(request):
                     "Акаунт викладача створено. "
                     "Очікуйте схвалення супер-адміністратора.",
                 )
+            elif form.cleaned_data["role"] == "admin":
+                messages.success(
+                    request,
+                    "Акаунт супер-адміністратора успішно створено!",
+                )
             else:
                 messages.success(
-                    request, "Реєстрація успішна!"
+                    request,
+                    "Реєстрація успішна!",
                 )
 
             return redirect("course_list")
@@ -102,9 +110,10 @@ def register_view(request):
         form = RegisterForm()
 
     return render(
-        request, "courses/register.html", {"form": form}
+        request,
+        "courses/register.html",
+        {"form": form},
     )
-
 
 def login_view(request):
     if request.user.is_authenticated:

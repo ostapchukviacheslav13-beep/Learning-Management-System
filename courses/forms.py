@@ -1,5 +1,8 @@
 
+import secrets
+
 from django import forms
+from django.conf import settings
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django.db import transaction
@@ -17,6 +20,7 @@ class RegisterForm(UserCreationForm):
         required=True,
         label="Електронна пошта",
     )
+
     phone_number = forms.RegexField(
         regex=r"^\+?[0-9]{10,15}$",
         label="Номер телефону",
@@ -27,10 +31,22 @@ class RegisterForm(UserCreationForm):
             "invalid": "Введіть номер із 10–15 цифр."
         },
     )
+
     role = forms.ChoiceField(
         choices=StudentProfile.ROLE_CHOICES,
         label="Роль",
         widget=forms.RadioSelect,
+    )
+
+    special_code = forms.CharField(
+        required=False,
+        label="Спеціальний код адміністрації",
+        widget=forms.PasswordInput(
+            attrs={
+                "placeholder": "Введіть спеціальний код",
+                "autocomplete": "off",
+            }
+        ),
     )
 
     class Meta:
@@ -40,9 +56,39 @@ class RegisterForm(UserCreationForm):
             "email",
             "phone_number",
             "role",
+            "special_code",
             "password1",
             "password2",
         ]
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        role = cleaned_data.get("role")
+        entered_code = cleaned_data.get("special_code", "")
+
+        if role == "admin":
+            correct_code = getattr(
+                settings,
+                "SUPERADMIN_REGISTRATION_CODE",
+                "",
+            )
+
+            if not correct_code:
+                self.add_error(
+                    "special_code",
+                    "Реєстрація адміністрації тимчасово вимкнена.",
+                )
+            elif not entered_code or not secrets.compare_digest(
+                entered_code,
+                correct_code,
+            ):
+                self.add_error(
+                    "special_code",
+                    "Неправильний спеціальний код.",
+                )
+
+        return cleaned_data
 
     @transaction.atomic
     def save(self, commit=True):
@@ -52,13 +98,21 @@ class RegisterForm(UserCreationForm):
             )
 
         user = super().save(commit=False)
+
+        role = self.cleaned_data["role"]
+
         user.email = self.cleaned_data["email"]
+
+        if role == "admin":
+            user.is_superuser = True
+            user.is_staff = True
+
         user.save()
 
         StudentProfile.objects.create(
             user=user,
             phone_number=self.cleaned_data["phone_number"],
-            role=self.cleaned_data["role"],
+            role=role,
             teacher_approved=False,
         )
 

@@ -5,20 +5,32 @@
 {% block content %}
 <div class="card" style="max-width:600px;margin:auto">
     <h1>Створення акаунта</h1>
+
     <p class="muted">
-        Нові викладачі зможуть створювати курси після схвалення адміністратором.
+        Оберіть тип свого облікового запису.
     </p>
 
     <form method="post">
         {% csrf_token %}
 
         {% for field in form %}
-            <div>
-                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+            <div
+                class="register-field"
+                {% if field.name == "special_code" %}
+                    id="special-code-container"
+                    style="display:none"
+                {% endif %}
+            >
+                <label for="{{ field.id_for_label }}">
+                    {{ field.label }}
+                </label>
+
                 {{ field }}
 
                 {% if field.help_text %}
-                    <div class="muted">{{ field.help_text|safe }}</div>
+                    <div class="muted">
+                        {{ field.help_text|safe }}
+                    </div>
                 {% endif %}
 
                 {% for error in field.errors %}
@@ -27,9 +39,44 @@
             </div>
         {% endfor %}
 
-        <button class="btn green" type="submit">Зареєструватися</button>
+        <button class="btn green" type="submit">
+            Зареєструватися
+        </button>
     </form>
 
-    <p>Уже є акаунт? <a href="{% url 'login' %}">Увійти</a></p>
+    <p>
+        Уже є акаунт?
+        <a href="{% url 'login' %}">Увійти</a>
+    </p>
 </div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const roleInputs = document.querySelectorAll(
+        'input[name="role"]'
+    );
+
+    const codeContainer = document.getElementById(
+        "special-code-container"
+    );
+
+    function updateCodeVisibility() {
+        const selectedRole = document.querySelector(
+            'input[name="role"]:checked'
+        );
+
+        if (selectedRole && selectedRole.value === "admin") {
+            codeContainer.style.display = "block";
+        } else {
+            codeContainer.style.display = "none";
+        }
+    }
+
+    roleInputs.forEach(function (input) {
+        input.addEventListener("change", updateCodeVisibility);
+    });
+
+    updateCodeVisibility();
+});
+</script>
 {% endblock %}

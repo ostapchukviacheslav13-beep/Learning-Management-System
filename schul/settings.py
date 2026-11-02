@@ -164,3 +164,8 @@ CSRF_COOKIE_SECURE = not DEBUG
 
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"    
+
+SUPERADMIN_REGISTRATION_CODE = os.environ.get(
+    "SUPERADMIN_REGISTRATION_CODE",
+    "",
+)
